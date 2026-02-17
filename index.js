@@ -5,7 +5,6 @@ const ytdlp = require('yt-dlp-exec');
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
-const archiver = require('archiver');
 const spotify = require('spotify-url-info')(fetch);
 
 
@@ -21,7 +20,7 @@ if (process.env.YT_COOKIES) {
 
 
 // ==================
-// CREAR DOWNLOADS
+// DOWNLOADS
 // ==================
 const DOWNLOADS = path.join(__dirname, 'downloads');
 
@@ -47,16 +46,14 @@ client.once('ready', () => {
 
 
 // ==================
-// SLASH COMMANDS
+// COMMANDS
 // ==================
 client.on('interactionCreate', async interaction => {
 
   if (!interaction.isChatInputCommand()) return;
 
 
-  // ======================
-  // /LIMPIAR
-  // ======================
+  // -------- LIMPIAR --------
   if (interaction.commandName === 'limpiar') {
 
     await interaction.deferReply();
@@ -78,9 +75,7 @@ client.on('interactionCreate', async interaction => {
   }
 
 
-  // ======================
-  // /BUSCAR
-  // ======================
+  // -------- BUSCAR --------
   if (interaction.commandName !== 'buscar') return;
 
   const query = interaction.options.getString('query');
@@ -90,7 +85,7 @@ client.on('interactionCreate', async interaction => {
 
   try {
 
-    // -------- SPOTIFY --------
+    // SPOTIFY
     if (query.includes('open.spotify.com')) {
 
       if (query.includes('/album/')) {
@@ -105,28 +100,27 @@ client.on('interactionCreate', async interaction => {
     }
 
 
-    // -------- YOUTUBE PLAYLIST --------
+    // PLAYLIST
     if (query.includes('list=')) {
       await youtubePlaylist(query, interaction);
       return;
     }
 
 
-    // -------- NORMAL --------
+    // NORMAL
     await downloadSong(query, interaction);
 
 
   } catch (err) {
 
     console.error(err);
-
     await interaction.editReply("❌ Error general");
   }
 });
 
 
 // ==================
-// DESCARGAR CANCIÓN
+// DOWNLOAD
 // ==================
 async function downloadSong(query, interaction, info = {}) {
 
@@ -158,7 +152,7 @@ async function downloadSong(query, interaction, info = {}) {
     const file = path.join(DOWNLOADS, filename);
 
 
-    // ===== DESCARGA =====
+    // ===== DOWNLOAD + TAGS =====
     await ytdlp(meta.webpage_url, {
 
       cookies: COOKIES_FILE,
@@ -167,16 +161,30 @@ async function downloadSong(query, interaction, info = {}) {
       format: "bestaudio",
 
       extractAudio: true,
-      audioFormat: 'mp3',
+      audioFormat: "mp3",
 
       output: file,
+
+      // 🔥 FORZAR METADATA
+      embedThumbnail: true,
+      embedMetadata: true,
+
+      postprocessorArgs: [
+        "-metadata", `title=${title}`,
+        "-metadata", `artist=${artist}`,
+        "-metadata", "album=Music | MP3",
+        "-metadata", "comment=Downloaded by Music | MP3",
+        "-write_id3v2", "1"
+      ],
+
+      preferFfmpeg: true,
 
       quiet: true,
       noWarnings: true
     });
 
 
-    // ===== VER TAMAÑO =====
+    // ===== SIZE =====
     const stats = fs.statSync(file);
     const sizeMB = stats.size / 1024 / 1024;
 
@@ -207,7 +215,7 @@ async function downloadSong(query, interaction, info = {}) {
     });
 
 
-    // ===== BORRAR =====
+    // ===== CLEAN =====
     setTimeout(() => {
       if (fs.existsSync(file)) fs.unlinkSync(file);
     }, 15000);
@@ -313,7 +321,7 @@ async function spotifyAlbum(url, interaction) {
 
 
 // ==================
-// YOUTUBE PLAYLIST
+// PLAYLIST
 // ==================
 async function youtubePlaylist(url, interaction) {
 
