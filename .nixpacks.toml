@@ -1,11 +1,12 @@
 [phases.setup]
-nixPkgs = ["nodejs_22", "python3"]
+nixPkgs = ["nodejs_22", "python3", "python3Packages.pip"]
 aptPkgs = ["ffmpeg"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = [
+  "ln -s /usr/bin/python3 /usr/bin/python || true",
+  "npm ci"
+]
 
 [start]
 cmd = "node index.js"
-
-
