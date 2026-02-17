@@ -7,3 +7,6 @@ cmds = ["npm ci"]
 [start]
 cmd = "node index.js"
 
+[phases.setup]
+aptPkgs = ["ffmpeg"]
+
