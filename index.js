@@ -144,7 +144,9 @@ async function downloadSong(query, interaction, info = {}) {
       dumpSingleJson: true,
       skipDownload: true,
       quiet: true,
-      cookies: COOKIES_FILE
+
+      cookies: COOKIES_FILE,
+      jsRuntimes: "node"
     });
 
 
@@ -160,15 +162,14 @@ async function downloadSong(query, interaction, info = {}) {
     await ytdlp(meta.webpage_url, {
 
       cookies: COOKIES_FILE,
+      jsRuntimes: "node",
+
+      format: "bestaudio",
 
       extractAudio: true,
       audioFormat: 'mp3',
 
       output: file,
-
-      embedThumbnail: true,
-      embedMetadata: true,
-      addMetadata: true,
 
       quiet: true,
       noWarnings: true
@@ -325,7 +326,9 @@ async function youtubePlaylist(url, interaction) {
       dumpSingleJson: true,
       skipDownload: true,
       quiet: true,
-      cookies: COOKIES_FILE
+
+      cookies: COOKIES_FILE,
+      jsRuntimes: "node"
     });
 
 
@@ -387,3 +390,4 @@ function sleep(ms) {
 // LOGIN
 // ==================
 client.login(process.env.TOKEN);
+
