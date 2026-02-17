@@ -10,6 +10,17 @@ const spotify = require('spotify-url-info')(fetch);
 
 
 // ==================
+// COOKIES YOUTUBE
+// ==================
+const COOKIES_FILE = path.join(__dirname, 'cookies.txt');
+
+if (process.env.YT_COOKIES) {
+  fs.writeFileSync(COOKIES_FILE, process.env.YT_COOKIES);
+  console.log("✅ Cookies de YouTube cargadas");
+}
+
+
+// ==================
 // CREAR DOWNLOADS
 // ==================
 const DOWNLOADS = path.join(__dirname, 'downloads');
@@ -132,7 +143,8 @@ async function downloadSong(query, interaction, info = {}) {
     const meta = await ytdlp(final, {
       dumpSingleJson: true,
       skipDownload: true,
-      quiet: true
+      quiet: true,
+      cookies: COOKIES_FILE
     });
 
 
@@ -146,6 +158,8 @@ async function downloadSong(query, interaction, info = {}) {
 
     // ===== DESCARGA =====
     await ytdlp(meta.webpage_url, {
+
+      cookies: COOKIES_FILE,
 
       extractAudio: true,
       audioFormat: 'mp3',
@@ -310,7 +324,8 @@ async function youtubePlaylist(url, interaction) {
     const data = await ytdlp(url, {
       dumpSingleJson: true,
       skipDownload: true,
-      quiet: true
+      quiet: true,
+      cookies: COOKIES_FILE
     });
 
 
