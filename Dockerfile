@@ -1,27 +1,21 @@
-FROM node:22-bullseye
+FROM node:22-bookworm
 
-# Instalar dependencias del sistema
+# Instalar dependencias
 RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-distutils \
+    python3 \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Forzar python -> python3.11
-RUN ln -sf /usr/bin/python3.11 /usr/bin/python && \
-    ln -sf /usr/bin/python3.11 /usr/bin/python3
+# Asegurar que "python" exista
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
-# Carpeta de trabajo
 WORKDIR /app
 
-# Copiar package files
 COPY package*.json ./
 
-# Instalar dependencias
 RUN npm ci
 
-# Copiar el resto
 COPY . .
 
-# Iniciar bot
 CMD ["node", "index.js"]
+
